@@ -1,0 +1,56 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.center {
+  /* border: 1px dashed teal; */
+  margin: 0 auto;
+  width: 500px;
+}
+
+.column hr {
+  width: 90%;
+  border: 0;
+  height: 0;
+  border-bottom: 1px solid grey;
+}
+
+.column {
+  /* border: 1px dashed violet; */
+  box-sizing: border-box;
+  width: 50%;
+  float: left;
+  position: relative;
+}
+
+.scheduled-item {
+   position: absolute;
+   left: 0;
+   border: 1px solid darksalmon;
+   width: 100%;
+   background-color: rgba(233, 150, 122, .3);
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
