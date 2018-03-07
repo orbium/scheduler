@@ -21,35 +21,54 @@
   font-size: large;
 }
 
+.App-footer {
+  padding: 50px;
+}
+
 .center {
   /* border: 1px dashed teal; */
   margin: 0 auto;
   max-width: 500px;
+  display: table;
 }
 
 .column hr {
-  width: 90%;
+  width: 50%;
   border: 0;
   height: 0;
   border-bottom: 1px solid grey;
 }
 
+#time-column {
+  width: 50px;
+}
+
 .column {
   /* border: 1px dashed violet; */
   box-sizing: border-box;
-  width: 50%;
-  float: left;
+  display: table-cell;
   position: relative;
 }
 
 .scheduled-item {
    position: absolute;
    left: 0;
-   border: 1px solid darksalmon;
    width: 100%;
-   background-color: rgba(233, 150, 122, .3);
-   overflow: hidden;
+   border: 1px solid olivedrab;
+   background-color: rgba(107, 142, 35, .3);
+   /* overflow: hidden; */
    box-sizing: border-box;
+   border-collapse: collapse;
+}
+
+.time-marker {
+  border-top: 1px solid grey;
+  padding: 0;
+  text-align: left;
+}
+
+#time-column .time-marker:last-child {
+  border-bottom: 1px solid grey;
 }
 
 @keyframes App-logo-spin {

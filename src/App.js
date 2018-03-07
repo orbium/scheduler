@@ -27,6 +27,29 @@ class App extends Component {
     const pm9Rect = document.getElementById('9pm').getBoundingClientRect();
     const pm10Rect = document.getElementById('10pm').getBoundingClientRect();
     const pm11Rect = document.getElementById('11pm').getBoundingClientRect();
+
+    [
+      'hour1 ' + (am8Rect.top - am7Rect.top),
+      'schedule ' + schedule.top,
+      'am7Rect ' + am7Rect.top,
+      'am8Rect ' + am8Rect.top,
+      'am9Rect ' + am9Rect.top,
+      'am10Rect ' + am10Rect.top,
+      'am11Rect ' + am11Rect.top,
+      'pm12Rect ' + pm12Rect.top,
+      'pm1Rect ' + pm1Rect.top,
+      'pm2Rect ' + pm2Rect.top,
+      'pm3Rect ' + pm3Rect.top,
+      'pm4Rect ' + pm4Rect.top,
+      'pm5Rect ' + pm5Rect.top,
+      'pm6Rect ' + pm6Rect.top,
+      'pm7Rect ' + pm7Rect.top,
+      'pm8Rect ' + pm8Rect.top,
+      'pm9Rect ' + pm9Rect.top,
+      'pm10Rect ' + pm10Rect.top,
+      'pm11Rect ' + pm11Rect.top,
+    ].forEach(e => console.log(e));
+
     this.setState({
       hour1: am8Rect.top - am7Rect.top,
       am7: am7Rect.top - schedule.top,
@@ -46,7 +69,7 @@ class App extends Component {
       pm9: pm9Rect.top - schedule.top,
       pm10: pm10Rect.top - schedule.top,
       pm11: pm11Rect.top - schedule.top
-    })
+    }, () => console.log(this.state))
   }
 
   render() {
@@ -60,10 +83,13 @@ class App extends Component {
           Weekday schedule
         </p>
         <div className="center">
-          <div className="column">
-            {hours.map(e => <div key={e}><p id={e}>{e}</p><hr /></div>)}
+          <div className="column" id="time-column">
+            {hours.map(e =>
+              <div key={e} id={e} className="time-marker">{e}<hr />&nbsp;</div>
+            )}
           </div>
           <div className="column" id="schedule">
+            <div style={{width: 200}}></div>
             <div className="scheduled-item"
               style={{top: this.state.am7, height: this.state.hour1 * 2}}
             >
@@ -111,6 +137,9 @@ class App extends Component {
             </div>
           </div>
         </div>
+        <footer className="App-footer">
+          Copyright © 2018, Embetter, Inc
+        </footer>
       </div>
     );
   }
