@@ -24,7 +24,7 @@
 .center {
   /* border: 1px dashed teal; */
   margin: 0 auto;
-  width: 500px;
+  max-width: 500px;
 }
 
 .column hr {
@@ -48,9 +48,17 @@
    border: 1px solid darksalmon;
    width: 100%;
    background-color: rgba(233, 150, 122, .3);
+   overflow: hidden;
+   box-sizing: border-box;
 }
 
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@media (max-width: 500px) {
+  .center {
+    width: 100%;
+  }
 }
