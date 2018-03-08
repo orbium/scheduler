@@ -1,11 +1,22 @@
 import React, { Component } from 'react';
 import './App.css';
 
+const hours = [... new Array(24).keys()];
 
 class App extends Component {
   constructor() {
     super();
-    this.state = { hour1: 0, am7: 0 }
+    this.handleCreate = this.handleCreate.bind(this);
+    this.handleSelectDayStart = this.handleSelectDayStart.bind(this);
+    // this.render = this.handleCreate.bind(this);
+    this.state = {
+      hour1: 0,
+      dayStart: 7,
+      scheduledItems: [
+        { time: '07:00', description: 'shower, shave, breakfast' },
+        { time: '09:00', description: 'work' }
+      ]
+    };
   }
 
   componentDidMount() {
@@ -28,29 +39,8 @@ class App extends Component {
     const pm10Rect = document.getElementById('10pm').getBoundingClientRect();
     const pm11Rect = document.getElementById('11pm').getBoundingClientRect();
 
-    [
-      'hour1 ' + (am8Rect.top - am7Rect.top),
-      'schedule ' + schedule.top,
-      'am7Rect ' + am7Rect.top,
-      'am8Rect ' + am8Rect.top,
-      'am9Rect ' + am9Rect.top,
-      'am10Rect ' + am10Rect.top,
-      'am11Rect ' + am11Rect.top,
-      'pm12Rect ' + pm12Rect.top,
-      'pm1Rect ' + pm1Rect.top,
-      'pm2Rect ' + pm2Rect.top,
-      'pm3Rect ' + pm3Rect.top,
-      'pm4Rect ' + pm4Rect.top,
-      'pm5Rect ' + pm5Rect.top,
-      'pm6Rect ' + pm6Rect.top,
-      'pm7Rect ' + pm7Rect.top,
-      'pm8Rect ' + pm8Rect.top,
-      'pm9Rect ' + pm9Rect.top,
-      'pm10Rect ' + pm10Rect.top,
-      'pm11Rect ' + pm11Rect.top,
-    ].forEach(e => console.log(e));
-
     this.setState({
+      distance1hour: am8Rect.top - am7Rect.top,
       hour1: am8Rect.top - am7Rect.top,
       am7: am7Rect.top - schedule.top,
       am8: am8Rect.top - schedule.top,
@@ -69,11 +59,35 @@ class App extends Component {
       pm9: pm9Rect.top - schedule.top,
       pm10: pm10Rect.top - schedule.top,
       pm11: pm11Rect.top - schedule.top
-    }, () => console.log(this.state))
+    })
+  }
+
+  handleCreate(e) {
+    const time = document.getElementById('scheduled-time').value;
+  }
+
+  handleSelectDayStart(e) {
+    this.setState({ dayStart: parseInt(e.target.value) });
+  }
+
+  renderHours() {
+    return (
+      hours.map(hour => {
+        const computedHour = (hour + this.state.dayStart) % 24
+            , twelveHour = ((computedHour + 11) % 12) + 1
+            , suffix = computedHour >= 12 ? "pm" : "am"
+            ;
+
+        return (
+          <div key={computedHour} id={twelveHour + suffix} className="time-marker">
+            {twelveHour}{suffix}<hr />&nbsp;
+          </div>
+        );
+      })
+    );
   }
 
   render() {
-    const hours = ['7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm', '12am', '1am', '2am', '3am', '4am', '5am', '6am'];
     return (
       <div className="App">
         <header className="App-header">
@@ -82,11 +96,27 @@ class App extends Component {
         <p className="App-intro">
           Weekday schedule
         </p>
+        Day starts
+        {' '}
+        <select id="day-start" onChange={this.handleSelectDayStart} defaultValue={this.state.dayStart}>
+          {hours.map(hour =>
+            <option key={hour} value={hour}>
+              {hour}
+            </option>
+          )}
+        </select>
+        <p>
+          start <input type="time" id="scheduled-time" />
+          {' '}
+          end <input type="time" id="scheduled-time" />
+          {' '}
+          desc. <input id="scheduled-item" />
+          {' '}
+          <button onClick={this.handleCreate} disabled>Create</button>
+        </p>
         <div className="center">
           <div className="column" id="time-column">
-            {hours.map(e =>
-              <div key={e} id={e} className="time-marker">{e}<hr />&nbsp;</div>
-            )}
+            {this.renderHours()}
           </div>
           <div className="column" id="schedule">
             <div style={{width: 200}}></div>

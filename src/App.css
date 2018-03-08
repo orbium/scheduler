@@ -59,6 +59,8 @@
    /* overflow: hidden; */
    box-sizing: border-box;
    border-collapse: collapse;
+   /* display: table-cell; */
+   vertical-align: middle;
 }
 
 .time-marker {
