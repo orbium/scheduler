@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 
 const hours = [...(new Array(24).keys())];
+const DEFAULT_DAY_START = 7;
 
 class App extends Component {
   constructor() {
@@ -9,11 +10,14 @@ class App extends Component {
     this.handleCreate = this.handleCreate.bind(this);
     this.handleSelectDayStart = this.handleSelectDayStart.bind(this);
     this.handleDeleteItem = this.handleDeleteItem.bind(this);
+    this.handleSelectSchedule = this.handleSelectSchedule.bind(this);
+    this.getCurrentSchedule = this.getCurrentSchedule.bind(this);
+    this.handleCreateSchedule = this.handleCreateSchedule.bind(this);
 
     this.state = {
-      dayStart: 7,
+      currentSchedule: 'Schedule 1',
       schedules: [
-        { name: 'Weekday schedule',
+        { name: 'Schedule 1',
           dayStart: 7,
           items: [
             { start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
@@ -27,26 +31,18 @@ class App extends Component {
             { start: '23:00', end: '7:00', description: 'sleep' },
           ]
         }
-      ],
-      scheduledItems: [
-        { start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
-        { start: '9:00', end: '12:00', description: 'work' },
-        { start: '12:00', end: '13:00', description: 'lunch' },
-        { start: '13:00', end: '17:00', description: 'work' },
-        { start: '17:00', end: '18:00', description: 'read' },
-        { start: '18:00', end: '19:00', description: 'walk' },
-        { start: '19:00', end: '20:00', description: 'dinner' },
-        { start: '22:00', end: '23:00', description: 'wind down' },
-        { start: '23:00', end: '7:00', description: 'sleep' },
       ]
     };
   }
 
   componentDidMount() {
-    const positions = this.calculatePositions();
+    const positions = this.calculatePositions()
+        , schedule = this.state.schedules.find(s => s.name === this.state.currentSchedule)
+        , dayStart = schedule.dayStart || DEFAULT_DAY_START
+        ;
 
     this.setState({
-      hour1: positions[this.state.dayStart + 1] - positions[this.state.dayStart],
+      hour1: positions[dayStart + 1] - positions[dayStart],
       positions: positions
     })
   }
@@ -55,12 +51,43 @@ class App extends Component {
     const { startTime, endTime, description } = this;
     if (!startTime.value || !endTime.value || !description.value) return;
 
-    this.setState({ scheduledItems: [...this.state.scheduledItems,
-      { start: startTime.value,
-        end: endTime.value,
-        description: description.value
-      }
-    ]});
+    const { schedules, currentSchedule } = this.state
+        , schedule = schedules.find(s => s.name === currentSchedule)
+        , scheduleIndex = schedules.findIndex(s => s.name === currentSchedule)
+        ;
+
+    this.setState({
+      schedules: [
+        ...schedules.filter((s, i) => i !== scheduleIndex),
+        {...schedule, items: [...schedule.items,
+          { start: startTime.value,
+            end: endTime.value,
+            description: description.value
+          }
+        ]}
+      ]
+    })
+  }
+
+  handleCreateSchedule(e) {
+    const name = `Schedule ${this.state.schedules.length + 1}`;
+    this.setState({ currentSchedule: name,
+      schedules: [...this.state.schedules, { name: name, items: [] }]
+    });
+  }
+
+  handleDeleteItem(e, index) {
+    const { schedules, currentSchedule } = this.state
+        , schedule = schedules.find(s => s.name === currentSchedule)
+        , scheduleIndex = schedules.findIndex(s => s.name === currentSchedule)
+        ;
+
+    this.setState({
+      schedules: [
+        ...schedules.filter((s, i) => i !== scheduleIndex),
+        {...schedule, items: schedule.items.filter((item, i) => i !== index)}
+      ]
+    })
   }
 
   calculatePositions() {
@@ -77,21 +104,33 @@ class App extends Component {
   }
 
   handleSelectDayStart(e) {
+    const { schedules, currentSchedule } = this.state
+        , schedule = schedules.find(s => s.name === currentSchedule)
+        , scheduleIndex = schedules.findIndex(s => s.name === currentSchedule)
+        ;
+
+    this.setState({
+      schedules: [
+        ...schedules.filter((s, i) => i !== scheduleIndex),
+        { ...schedule, dayStart: parseInt(e.target.value, 10) }
+      ]
+    })
+
     this.setState(
       { dayStart: parseInt(e.target.value, 10) },
       () => this.setState({ positions: this.calculatePositions() })
     );
   }
 
-  handleDeleteItem(e, index) {
-    this.setState({
-      scheduledItems: this.state.scheduledItems.filter((item, i) => i !== index)
-    });
+  handleSelectSchedule(e) {
+    this.setState({ currentSchedule: e.target.value });
   }
 
   renderHours() {
+    const schedule = this.state.schedules.find(s => s.name === this.state.currentSchedule)
+
     return hours.map(hour => {
-      const computedHour = (hour + this.state.dayStart) % 24
+      const computedHour = (hour + (schedule.dayStart || DEFAULT_DAY_START)) % 24
           , twelveHour = ((computedHour + 11) % 12) + 1
           , suffix = computedHour >= 12 ? "pm" : "am"
           ;
@@ -111,14 +150,16 @@ class App extends Component {
     return hrs(endHr < startHr);
   }
 
-  renderScheduledItems() {
+  renderSchedule() {
     if (!this.state.positions) return;
 
     const pixelsPerHr = this.state.hour1
         , pixelsPerMin = pixelsPerHr / 60
+        , schedule =
+            this.state.schedules.find(s => s.name === this.state.currentSchedule)
         ;
 
-    return this.state.scheduledItems.map((si, index) => {
+    return schedule.items.map((si, index) => {
       let colonIndex = si.start.indexOf(':');
       const startHr = parseInt(si.start.slice(0, colonIndex), 10)
           , startMins = parseInt(si.start.slice(colonIndex + 1, si.start.length), 10)
@@ -136,11 +177,35 @@ class App extends Component {
             height: height
           }}
         >
-          <div className="delete-item" onClick={e => this.handleDeleteItem(e, index)}>×</div>
+          <div className="delete-item"
+            onClick={e => this.handleDeleteItem(e, index)}
+          >
+            ×
+          </div>
           {si.description}
         </div>
       );
     });
+  }
+
+  renderScheduleSelector() {
+    return (
+      <p className="App-intro">
+        <select value={this.state.currentSchedule}
+          onChange={this.handleSelectSchedule}
+        >
+          {this.state.schedules.sort((a, b) => a.name > b.name).map((s, index) =>
+            <option key={index} value={s.name}>{s.name}</option>
+          )}
+        </select>
+        {' '}
+        <button onClick={this.handleCreateSchedule}>New schedule</button>
+      </p>
+    );
+  }
+
+  getCurrentSchedule() {
+    return this.state.schedules.find(s => s.name === this.state.currentSchedule);
   }
 
   render() {
@@ -149,18 +214,12 @@ class App extends Component {
         <header className="App-header">
           <h1 className="App-title">Scheduler</h1>
         </header>
-        <p className="App-intro">
-          <select>
-            <option>Weekday schedule</option>
-          </select>
-          {' '}
-          <button>New schedule</button>
-        </p>
+        {this.renderScheduleSelector()}
         Day starts
         {' '}
         <select id="day-start"
           onChange={this.handleSelectDayStart}
-          defaultValue={this.state.dayStart}
+          value={this.getCurrentSchedule().dayStart || DEFAULT_DAY_START}
         >
           {hours.map(hour =>
             <option key={hour} value={hour}>
@@ -169,11 +228,23 @@ class App extends Component {
           )}
         </select>
         <p>
-          start <input type="time" id="start-time" ref={el => this.startTime = el} />
+          start
           {' '}
-          end <input type="time" id="end-time" ref={el => this.endTime = el} />
+          <input type="time" id="start-time" ref={el => this.startTime = el}
+            defaultValue="07:15"
+          />
           {' '}
-          desc. <input id="description" ref={el => this.description = el} />
+          end
+          {' '}
+          <input type="time" id="end-time" ref={el => this.endTime = el}
+            defaultValue="07:45"
+          />
+          {' '}
+          desc.
+          {' '}
+          <input id="description" ref={el => this.description = el}
+            defaultValue="test"
+          />
           {' '}
           <button onClick={this.handleCreate}>Create</button>
         </p>
@@ -183,7 +254,7 @@ class App extends Component {
           </div>
           <div className="column" id="schedule">
             <div style={{width: 200}}></div>
-            {this.renderScheduledItems()}
+            {this.renderSchedule()}
           </div>
         </div>
         <footer className="App-footer">
