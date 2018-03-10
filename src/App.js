@@ -14,53 +14,18 @@ class App extends Component {
       hour1: 0,
       dayStart: 7,
       scheduledItems: [
-        { start: '08:00', end: '09:00', description: 'shower, shave, breakfast' },
-        // { time: '09:00', end: '12:00', description: 'work' }
+        { start: '07:18', end: '9:00', description: 'shower, shave, breakfast' },
+        // { start: '9:00', end: '12:00', description: 'work' }
       ]
     };
   }
 
   componentDidMount() {
-    const schedule = document.getElementById('schedule').getBoundingClientRect();
-    const am7Rect = document.getElementById('7').getBoundingClientRect();
-    const am8Rect = document.getElementById('8').getBoundingClientRect();
-    const am9Rect = document.getElementById('9').getBoundingClientRect();
-    const am10Rect = document.getElementById('10').getBoundingClientRect();
-    const am11Rect = document.getElementById('11').getBoundingClientRect();
-    const pm12Rect = document.getElementById('12').getBoundingClientRect();
-    const pm1Rect = document.getElementById('13').getBoundingClientRect();
-    const pm2Rect = document.getElementById('14').getBoundingClientRect();
-    const pm3Rect = document.getElementById('15').getBoundingClientRect();
-    const pm4Rect = document.getElementById('16').getBoundingClientRect();
-    const pm5Rect = document.getElementById('17').getBoundingClientRect();
-    const pm6Rect = document.getElementById('18').getBoundingClientRect();
-    const pm7Rect = document.getElementById('19').getBoundingClientRect();
-    const pm8Rect = document.getElementById('20').getBoundingClientRect();
-    const pm9Rect = document.getElementById('21').getBoundingClientRect();
-    const pm10Rect = document.getElementById('22').getBoundingClientRect();
-    const pm11Rect = document.getElementById('23').getBoundingClientRect();
+    const positions = this.calculatePositions();
 
     this.setState({
-      distance1hour: am8Rect.top - am7Rect.top,
-      hour1: am8Rect.top - am7Rect.top,
-      am7: am7Rect.top - schedule.top,
-      am8: am8Rect.top - schedule.top,
-      am9: am9Rect.top - schedule.top,
-      am10: am10Rect.top - schedule.top,
-      am11: am11Rect.top - schedule.top,
-      pm12: pm12Rect.top - schedule.top,
-      pm1: pm1Rect.top - schedule.top,
-      pm2: pm2Rect.top - schedule.top,
-      pm3: pm3Rect.top - schedule.top,
-      pm4: pm4Rect.top - schedule.top,
-      pm5: pm5Rect.top - schedule.top,
-      pm6: pm6Rect.top - schedule.top,
-      pm7: pm7Rect.top - schedule.top,
-      pm8: pm8Rect.top - schedule.top,
-      pm9: pm9Rect.top - schedule.top,
-      pm10: pm10Rect.top - schedule.top,
-      pm11: pm11Rect.top - schedule.top,
-      positions: this.calculatePositions()
+      hour1: positions[this.state.dayStart + 1] - positions[this.state.dayStart],
+      positions: positions
     })
   }
 
@@ -106,14 +71,21 @@ class App extends Component {
   renderScheduledItems() {
     if (!this.state.positions) return;
 
+    const pixelLengthOf1Hour = this.state.hour1;
+
     return this.state.scheduledItems.map((si, index) => {
-      const hour = parseInt(si.start.slice(0, si.start.indexOf(':')), 10)
-          , minutes = parseInt(si.start.slice(si.start.indexOf(':') + 1, si.length), 10)
+      const colonIndex = si.start.indexOf(':')
+          , hour = parseInt(si.start.slice(0, colonIndex), 10)
+          , minutes = parseInt(si.start.slice(colonIndex + 1, si.length), 10)
+          , pixelsPerMinute = pixelLengthOf1Hour / 60
           ;
 
       return (
         <div key={index} className="scheduled-item"
-          style={{top: this.state.positions[hour], height: this.state.hour1 * 2}}
+          style={{
+            top: this.state.positions[hour] + minutes * pixelsPerMinute,
+            height: this.state.hour1 * 2
+          }}
         >
           {si.description}
         </div>
