@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 
-const hours = [... new Array(24).keys()];
+const hours = [...(new Array(24).keys())];
 
 class App extends Component {
   constructor() {
@@ -9,35 +9,36 @@ class App extends Component {
     this.handleCreate = this.handleCreate.bind(this);
     this.handleSelectDayStart = this.handleSelectDayStart.bind(this);
     // this.render = this.handleCreate.bind(this);
+
     this.state = {
       hour1: 0,
       dayStart: 7,
       scheduledItems: [
-        { time: '07:00', description: 'shower, shave, breakfast' },
-        { time: '09:00', description: 'work' }
+        { start: '08:00', end: '09:00', description: 'shower, shave, breakfast' },
+        // { time: '09:00', end: '12:00', description: 'work' }
       ]
     };
   }
 
   componentDidMount() {
     const schedule = document.getElementById('schedule').getBoundingClientRect();
-    const am7Rect = document.getElementById('7am').getBoundingClientRect();
-    const am8Rect = document.getElementById('8am').getBoundingClientRect();
-    const am9Rect = document.getElementById('9am').getBoundingClientRect();
-    const am10Rect = document.getElementById('10am').getBoundingClientRect();
-    const am11Rect = document.getElementById('11am').getBoundingClientRect();
-    const pm12Rect = document.getElementById('12pm').getBoundingClientRect();
-    const pm1Rect = document.getElementById('1pm').getBoundingClientRect();
-    const pm2Rect = document.getElementById('2pm').getBoundingClientRect();
-    const pm3Rect = document.getElementById('3pm').getBoundingClientRect();
-    const pm4Rect = document.getElementById('4pm').getBoundingClientRect();
-    const pm5Rect = document.getElementById('5pm').getBoundingClientRect();
-    const pm6Rect = document.getElementById('6pm').getBoundingClientRect();
-    const pm7Rect = document.getElementById('7pm').getBoundingClientRect();
-    const pm8Rect = document.getElementById('8pm').getBoundingClientRect();
-    const pm9Rect = document.getElementById('9pm').getBoundingClientRect();
-    const pm10Rect = document.getElementById('10pm').getBoundingClientRect();
-    const pm11Rect = document.getElementById('11pm').getBoundingClientRect();
+    const am7Rect = document.getElementById('7').getBoundingClientRect();
+    const am8Rect = document.getElementById('8').getBoundingClientRect();
+    const am9Rect = document.getElementById('9').getBoundingClientRect();
+    const am10Rect = document.getElementById('10').getBoundingClientRect();
+    const am11Rect = document.getElementById('11').getBoundingClientRect();
+    const pm12Rect = document.getElementById('12').getBoundingClientRect();
+    const pm1Rect = document.getElementById('13').getBoundingClientRect();
+    const pm2Rect = document.getElementById('14').getBoundingClientRect();
+    const pm3Rect = document.getElementById('15').getBoundingClientRect();
+    const pm4Rect = document.getElementById('16').getBoundingClientRect();
+    const pm5Rect = document.getElementById('17').getBoundingClientRect();
+    const pm6Rect = document.getElementById('18').getBoundingClientRect();
+    const pm7Rect = document.getElementById('19').getBoundingClientRect();
+    const pm8Rect = document.getElementById('20').getBoundingClientRect();
+    const pm9Rect = document.getElementById('21').getBoundingClientRect();
+    const pm10Rect = document.getElementById('22').getBoundingClientRect();
+    const pm11Rect = document.getElementById('23').getBoundingClientRect();
 
     this.setState({
       distance1hour: am8Rect.top - am7Rect.top,
@@ -58,33 +59,66 @@ class App extends Component {
       pm8: pm8Rect.top - schedule.top,
       pm9: pm9Rect.top - schedule.top,
       pm10: pm10Rect.top - schedule.top,
-      pm11: pm11Rect.top - schedule.top
+      pm11: pm11Rect.top - schedule.top,
+      positions: this.calculatePositions()
     })
   }
 
   handleCreate(e) {
-    const time = document.getElementById('scheduled-time').value;
+    // const time = document.getElementById('scheduled-time').value;
+  }
+
+  calculatePositions() {
+    const getRect = hour =>
+            document.getElementById(`${hour}`).getBoundingClientRect()
+        , schedule = document.getElementById('schedule').getBoundingClientRect()
+        , rects = hours.reduce((acc, h) => ({ ...acc, [h]: getRect(h) }), {})
+        , positions = Object.entries(rects).reduce((acc, [hour, rect]) =>
+            ({ ...acc, [parseInt(hour, 10)]: rect.top - schedule.top })
+          , {})
+        ;
+
+    return positions;
   }
 
   handleSelectDayStart(e) {
-    this.setState({ dayStart: parseInt(e.target.value) });
+    this.setState(
+      { dayStart: parseInt(e.target.value, 10) },
+      () => this.setState({ positions: this.calculatePositions() })
+    );
   }
 
   renderHours() {
-    return (
-      hours.map(hour => {
-        const computedHour = (hour + this.state.dayStart) % 24
-            , twelveHour = ((computedHour + 11) % 12) + 1
-            , suffix = computedHour >= 12 ? "pm" : "am"
-            ;
+    return hours.map(hour => {
+      const computedHour = (hour + this.state.dayStart) % 24
+          , twelveHour = ((computedHour + 11) % 12) + 1
+          , suffix = computedHour >= 12 ? "pm" : "am"
+          ;
 
-        return (
-          <div key={computedHour} id={twelveHour + suffix} className="time-marker">
-            {twelveHour}{suffix}<hr />&nbsp;
-          </div>
-        );
-      })
-    );
+      return (
+        <div key={computedHour} id={computedHour} className="time-marker">
+          {twelveHour}{suffix}<hr />&nbsp;
+        </div>
+      );
+    });
+  }
+
+  renderScheduledItems() {
+    if (!this.state.positions) return;
+
+    return this.state.scheduledItems.map((si, index) => {
+      const hour = parseInt(si.start.slice(0, si.start.indexOf(':')), 10)
+          , minutes = parseInt(si.start.slice(si.start.indexOf(':') + 1, si.length), 10)
+          ;
+
+      return (
+        <div key={index} className="scheduled-item"
+          style={{top: this.state.positions[hour], height: this.state.hour1 * 2}}
+        >
+          {si.description}
+        </div>
+      );
+    });
   }
 
   render() {
@@ -98,7 +132,10 @@ class App extends Component {
         </p>
         Day starts
         {' '}
-        <select id="day-start" onChange={this.handleSelectDayStart} defaultValue={this.state.dayStart}>
+        <select id="day-start"
+          onChange={this.handleSelectDayStart}
+          defaultValue={this.state.dayStart}
+        >
           {hours.map(hour =>
             <option key={hour} value={hour}>
               {hour}
@@ -120,7 +157,8 @@ class App extends Component {
           </div>
           <div className="column" id="schedule">
             <div style={{width: 200}}></div>
-            <div className="scheduled-item"
+            {this.renderScheduledItems()}
+            {/* <div className="scheduled-item"
               style={{top: this.state.am7, height: this.state.hour1 * 2}}
             >
               shower, shave, breakfast
@@ -164,7 +202,7 @@ class App extends Component {
               style={{top: this.state.pm11, height: this.state.hour1 * 8}}
             >
               sleep
-            </div>
+            </div> */}
           </div>
         </div>
         <footer className="App-footer">
