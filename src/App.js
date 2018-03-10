@@ -71,9 +71,12 @@ class App extends Component {
 
   handleCreateSchedule(e) {
     const name = `Schedule ${this.state.schedules.length + 1}`;
-    this.setState({ currentSchedule: name,
-      schedules: [...this.state.schedules, { name: name, items: [] }]
-    });
+    this.setState(
+      { currentSchedule: name,
+        schedules: [...this.state.schedules, { name: name, items: [] }]
+      },
+      () => this.setState({ positions: this.calculatePositions() })
+    );
   }
 
   handleDeleteItem(e, index) {
@@ -113,17 +116,16 @@ class App extends Component {
       schedules: [
         ...schedules.filter((s, i) => i !== scheduleIndex),
         { ...schedule, dayStart: parseInt(e.target.value, 10) }
-      ]
-    })
-
-    this.setState(
-      { dayStart: parseInt(e.target.value, 10) },
+      ]},
       () => this.setState({ positions: this.calculatePositions() })
     );
   }
 
   handleSelectSchedule(e) {
-    this.setState({ currentSchedule: e.target.value });
+    this.setState(
+      { currentSchedule: e.target.value },
+      () => this.setState({ positions: this.calculatePositions() })
+    );
   }
 
   renderHours() {
@@ -208,6 +210,28 @@ class App extends Component {
     return this.state.schedules.find(s => s.name === this.state.currentSchedule);
   }
 
+  renderDayStartSelector() {
+    return (
+      <select id="day-start"
+        onChange={this.handleSelectDayStart}
+        value={this.getCurrentSchedule().dayStart || DEFAULT_DAY_START}
+      >
+        {hours.map(hour => {
+          const computedHour = hour % 24
+              , twelveHour = ((computedHour + 11) % 12) + 1
+              , suffix = computedHour >= 12 ? "pm" : "am"
+              ;
+
+          return (
+            <option key={hour} value={hour}>
+              {twelveHour + suffix}
+            </option>
+          );
+        })}
+      </select>
+    );
+  }
+
   render() {
     return (
       <div className="App">
@@ -215,35 +239,26 @@ class App extends Component {
           <h1 className="App-title">Scheduler</h1>
         </header>
         {this.renderScheduleSelector()}
-        Day starts
+        Day starts at
         {' '}
-        <select id="day-start"
-          onChange={this.handleSelectDayStart}
-          value={this.getCurrentSchedule().dayStart || DEFAULT_DAY_START}
-        >
-          {hours.map(hour =>
-            <option key={hour} value={hour}>
-              {hour}
-            </option>
-          )}
-        </select>
+        {this.renderDayStartSelector()}
         <p>
           start
           {' '}
           <input type="time" id="start-time" ref={el => this.startTime = el}
-            defaultValue="07:15"
+            // defaultValue="07:15"
           />
           {' '}
           end
           {' '}
           <input type="time" id="end-time" ref={el => this.endTime = el}
-            defaultValue="07:45"
+            // defaultValue="07:45"
           />
           {' '}
           desc.
           {' '}
           <input id="description" ref={el => this.description = el}
-            defaultValue="test"
+            // defaultValue="test"
           />
           {' '}
           <button onClick={this.handleCreate}>Create</button>
