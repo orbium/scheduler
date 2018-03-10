@@ -66,7 +66,8 @@ class App extends Component {
           }
         ]}
       ]
-    })
+    });
+    startTime.value = endTime.value = description.value = '';
   }
 
   handleCreateSchedule(e) {
