@@ -8,14 +8,20 @@ class App extends Component {
     super();
     this.handleCreate = this.handleCreate.bind(this);
     this.handleSelectDayStart = this.handleSelectDayStart.bind(this);
-    // this.render = this.handleCreate.bind(this);
 
     this.state = {
       hour1: 0,
       dayStart: 7,
       scheduledItems: [
-        { start: '07:18', end: '9:00', description: 'shower, shave, breakfast' },
-        // { start: '9:00', end: '12:00', description: 'work' }
+        // { start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
+        // { start: '9:00', end: '12:00', description: 'work' },
+        // { start: '12:00', end: '13:00', description: 'lunch' },
+        // { start: '13:00', end: '17:00', description: 'work' },
+        // { start: '17:00', end: '18:00', description: 'read' },
+        // { start: '18:00', end: '19:00', description: 'walk' },
+        // { start: '19:00', end: '20:00', description: 'dinner' },
+        // { start: '22:00', end: '23:00', description: 'wind down' },
+        // { start: '23:00', end: '7:00', description: 'sleep' },
       ]
     };
   }
@@ -30,7 +36,15 @@ class App extends Component {
   }
 
   handleCreate(e) {
-    // const time = document.getElementById('scheduled-time').value;
+    const { startTime, endTime, description } = this;
+    if (!startTime.value || !endTime.value || !description.value) return;
+
+    this.setState({ scheduledItems: [...this.state.scheduledItems,
+      { start: startTime.value,
+        end: endTime.value,
+        description: description.value
+      }
+    ]});
   }
 
   calculatePositions() {
@@ -68,23 +82,36 @@ class App extends Component {
     });
   }
 
+  getHeight(startHr, startMins, endHr, endMins, pixelsPerHr, pixelsPerMin) {
+    const mins = (endMins - startMins) * pixelsPerMin
+        , hrs = neg => pixelsPerHr * (endHr + (neg ? 24 : 0) - startHr) + mins;
+
+    return hrs(endHr < startHr);
+  }
+
   renderScheduledItems() {
     if (!this.state.positions) return;
 
-    const pixelLengthOf1Hour = this.state.hour1;
+    const pixelsPerHr = this.state.hour1
+        , pixelsPerMin = pixelsPerHr / 60
+        ;
 
     return this.state.scheduledItems.map((si, index) => {
-      const colonIndex = si.start.indexOf(':')
-          , hour = parseInt(si.start.slice(0, colonIndex), 10)
-          , minutes = parseInt(si.start.slice(colonIndex + 1, si.length), 10)
-          , pixelsPerMinute = pixelLengthOf1Hour / 60
+      let colonIndex = si.start.indexOf(':');
+      const startHr = parseInt(si.start.slice(0, colonIndex), 10)
+          , startMins = parseInt(si.start.slice(colonIndex + 1, si.start.length), 10)
+          ;
+      colonIndex = si.end.indexOf(':');
+      const endHr = parseInt(si.end.slice(0, colonIndex), 10)
+          , endMins = parseInt(si.end.slice(colonIndex + 1, si.end.length), 10)
+          , height = this.getHeight(startHr, startMins, endHr, endMins, pixelsPerHr, pixelsPerMin)
           ;
 
       return (
         <div key={index} className="scheduled-item"
           style={{
-            top: this.state.positions[hour] + minutes * pixelsPerMinute,
-            height: this.state.hour1 * 2
+            top: this.state.positions[startHr] + startMins * pixelsPerMin,
+            height: height
           }}
         >
           {si.description}
@@ -115,13 +142,13 @@ class App extends Component {
           )}
         </select>
         <p>
-          start <input type="time" id="scheduled-time" />
+          start <input type="time" id="start-time" ref={el => this.startTime = el} />
           {' '}
-          end <input type="time" id="scheduled-time" />
+          end <input type="time" id="end-time" ref={el => this.endTime = el} />
           {' '}
-          desc. <input id="scheduled-item" />
+          desc. <input id="description" ref={el => this.description = el} />
           {' '}
-          <button onClick={this.handleCreate} disabled>Create</button>
+          <button onClick={this.handleCreate}>Create</button>
         </p>
         <div className="center">
           <div className="column" id="time-column">
@@ -130,55 +157,10 @@ class App extends Component {
           <div className="column" id="schedule">
             <div style={{width: 200}}></div>
             {this.renderScheduledItems()}
-            {/* <div className="scheduled-item"
-              style={{top: this.state.am7, height: this.state.hour1 * 2}}
-            >
-              shower, shave, breakfast
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.am9, height: this.state.hour1 * 3}}
-            >
-              work
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.pm12, height: this.state.hour1}}
-            >
-              lunch
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.pm1, height: this.state.hour1 * 4}}
-            >
-              work
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.pm5, height: this.state.hour1}}
-            >
-              read
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.pm6, height: this.state.hour1}}
-            >
-              walk
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.pm7, height: this.state.hour1}}
-            >
-              dinner
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.pm10, height: this.state.hour1}}
-            >
-              wind down
-            </div>
-            <div className="scheduled-item"
-              style={{top: this.state.pm11, height: this.state.hour1 * 8}}
-            >
-              sleep
-            </div> */}
           </div>
         </div>
         <footer className="App-footer">
-          Copyright © 2018, Embetter, Inc
+          Copyright © 2018, Embetterment, Inc
         </footer>
       </div>
     );
