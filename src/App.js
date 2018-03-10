@@ -1,8 +1,24 @@
 import React, { Component } from 'react';
 import './App.css';
 
-const hours = [...(new Array(24).keys())];
-const DEFAULT_DAY_START = 7;
+const HOURS = [...(new Array(24).keys())]
+    , DEFAULT_DAY_START = 7
+    , SAMPLE_SCHEDULE = {
+        name: 'Schedule 1',
+        dayStart: 7,
+        items: [
+          { start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
+          { start: '9:00', end: '12:00', description: 'work' },
+          { start: '12:00', end: '13:00', description: 'lunch' },
+          { start: '13:00', end: '17:00', description: 'work' },
+          { start: '17:00', end: '18:00', description: 'read' },
+          { start: '18:00', end: '19:00', description: 'walk' },
+          { start: '19:00', end: '20:00', description: 'dinner' },
+          { start: '22:00', end: '23:00', description: 'wind down' },
+          { start: '23:00', end: '7:00', description: 'sleep' },
+        ]
+      }
+    ;
 
 class App extends Component {
   constructor() {
@@ -15,23 +31,8 @@ class App extends Component {
     this.handleCreateSchedule = this.handleCreateSchedule.bind(this);
 
     this.state = {
-      currentSchedule: 'Schedule 1',
-      schedules: [
-        { name: 'Schedule 1',
-          dayStart: 7,
-          items: [
-            { start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
-            { start: '9:00', end: '12:00', description: 'work' },
-            { start: '12:00', end: '13:00', description: 'lunch' },
-            { start: '13:00', end: '17:00', description: 'work' },
-            { start: '17:00', end: '18:00', description: 'read' },
-            { start: '18:00', end: '19:00', description: 'walk' },
-            { start: '19:00', end: '20:00', description: 'dinner' },
-            { start: '22:00', end: '23:00', description: 'wind down' },
-            { start: '23:00', end: '7:00', description: 'sleep' },
-          ]
-        }
-      ]
+      currentSchedule: SAMPLE_SCHEDULE.name,
+      schedules: [SAMPLE_SCHEDULE]
     };
   }
 
@@ -98,7 +99,7 @@ class App extends Component {
     const getRect = hour =>
             document.getElementById(`${hour}`).getBoundingClientRect()
         , schedule = document.getElementById('schedule').getBoundingClientRect()
-        , rects = hours.reduce((acc, h) => ({ ...acc, [h]: getRect(h) }), {})
+        , rects = HOURS.reduce((acc, h) => ({ ...acc, [h]: getRect(h) }), {})
         , positions = Object.entries(rects).reduce((acc, [hour, rect]) =>
             ({ ...acc, [parseInt(hour, 10)]: rect.top - schedule.top })
           , {})
@@ -129,10 +130,10 @@ class App extends Component {
     );
   }
 
-  renderHours() {
+  renderHOURS() {
     const schedule = this.state.schedules.find(s => s.name === this.state.currentSchedule)
 
-    return hours.map(hour => {
+    return HOURS.map(hour => {
       const computedHour = (hour + (schedule.dayStart || DEFAULT_DAY_START)) % 24
           , twelveHour = ((computedHour + 11) % 12) + 1
           , suffix = computedHour >= 12 ? "pm" : "am"
@@ -217,7 +218,7 @@ class App extends Component {
         onChange={this.handleSelectDayStart}
         value={this.getCurrentSchedule().dayStart || DEFAULT_DAY_START}
       >
-        {hours.map(hour => {
+        {HOURS.map(hour => {
           const computedHour = hour % 24
               , twelveHour = ((computedHour + 11) % 12) + 1
               , suffix = computedHour >= 12 ? "pm" : "am"
@@ -266,7 +267,7 @@ class App extends Component {
         </p>
         <div className="center">
           <div className="column" id="time-column">
-            {this.renderHours()}
+            {this.renderHOURS()}
           </div>
           <div className="column" id="schedule">
             <div style={{width: 200}}></div>
