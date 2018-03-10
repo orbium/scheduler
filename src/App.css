@@ -73,6 +73,21 @@
   border-bottom: 1px solid grey;
 }
 
+.delete-item {
+  float: right;
+  border: 1px solid grey;
+  background-color: rgba(128, 128, 128, .25);
+  padding: 0;
+  margin: 0;
+  line-height: .7em;
+  cursor: pointer;
+}
+
+.delete-item:hover {
+  background-color: rgba(128, 128, 128, .5);
+  color: white;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

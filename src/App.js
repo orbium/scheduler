@@ -8,20 +8,36 @@ class App extends Component {
     super();
     this.handleCreate = this.handleCreate.bind(this);
     this.handleSelectDayStart = this.handleSelectDayStart.bind(this);
+    this.handleDeleteItem = this.handleDeleteItem.bind(this);
 
     this.state = {
-      hour1: 0,
       dayStart: 7,
+      schedules: [
+        { name: 'Weekday schedule',
+          dayStart: 7,
+          items: [
+            { start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
+            { start: '9:00', end: '12:00', description: 'work' },
+            { start: '12:00', end: '13:00', description: 'lunch' },
+            { start: '13:00', end: '17:00', description: 'work' },
+            { start: '17:00', end: '18:00', description: 'read' },
+            { start: '18:00', end: '19:00', description: 'walk' },
+            { start: '19:00', end: '20:00', description: 'dinner' },
+            { start: '22:00', end: '23:00', description: 'wind down' },
+            { start: '23:00', end: '7:00', description: 'sleep' },
+          ]
+        }
+      ],
       scheduledItems: [
-        // { start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
-        // { start: '9:00', end: '12:00', description: 'work' },
-        // { start: '12:00', end: '13:00', description: 'lunch' },
-        // { start: '13:00', end: '17:00', description: 'work' },
-        // { start: '17:00', end: '18:00', description: 'read' },
-        // { start: '18:00', end: '19:00', description: 'walk' },
-        // { start: '19:00', end: '20:00', description: 'dinner' },
-        // { start: '22:00', end: '23:00', description: 'wind down' },
-        // { start: '23:00', end: '7:00', description: 'sleep' },
+        { index: 0, start: '07:00', end: '9:00', description: 'shower, shave, breakfast' },
+        { index: 1, start: '9:00', end: '12:00', description: 'work' },
+        { index: 2, start: '12:00', end: '13:00', description: 'lunch' },
+        { index: 3, start: '13:00', end: '17:00', description: 'work' },
+        { index: 4, start: '17:00', end: '18:00', description: 'read' },
+        { index: 5, start: '18:00', end: '19:00', description: 'walk' },
+        { index: 6, start: '19:00', end: '20:00', description: 'dinner' },
+        { index: 7, start: '22:00', end: '23:00', description: 'wind down' },
+        { index: 8, start: '23:00', end: '7:00', description: 'sleep' },
       ]
     };
   }
@@ -65,6 +81,12 @@ class App extends Component {
       { dayStart: parseInt(e.target.value, 10) },
       () => this.setState({ positions: this.calculatePositions() })
     );
+  }
+
+  handleDeleteItem(e, index) {
+    this.setState({
+      scheduledItems: this.state.scheduledItems.filter(i => i.index !== index)
+    });
   }
 
   renderHours() {
@@ -114,6 +136,7 @@ class App extends Component {
             height: height
           }}
         >
+          <div className="delete-item" onClick={e => this.handleDeleteItem(e, si.index)}>×</div>
           {si.description}
         </div>
       );
