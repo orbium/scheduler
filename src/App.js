@@ -130,7 +130,7 @@ class App extends Component {
     );
   }
 
-  renderHOURS() {
+  renderHours() {
     const schedule = this.state.schedules.find(s => s.name === this.state.currentSchedule)
 
     return HOURS.map(hour => {
@@ -267,7 +267,7 @@ class App extends Component {
         </p>
         <div className="center">
           <div className="column" id="time-column">
-            {this.renderHOURS()}
+            {this.renderHours()}
           </div>
           <div className="column" id="schedule">
             <div style={{width: 200}}></div>
